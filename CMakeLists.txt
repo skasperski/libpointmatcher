@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1.0)
 
-project(libpointmatcher VERSION 1.0.0)
+project(libpointmatcher VERSION 1.3.1)
 
 find_package(Boost COMPONENTS thread filesystem system program_options date_time chrono REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -76,34 +76,66 @@ set(POINTMATCHER_SRC
 
 file(GLOB_RECURSE POINTMATCHER_HEADERS "pointmatcher/*.h")
 
-add_library(pointmatcher ${POINTMATCHER_SRC} ${POINTMATCHER_HEADERS} )
+add_library(${PROJECT_NAME} ${POINTMATCHER_SRC} ${POINTMATCHER_HEADERS} )
 
-target_include_directories(pointmatcher
+target_include_directories(${PROJECT_NAME}
 	PUBLIC
 		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
-		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/pointmatcher
-		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/contrib/yaml-cpp-pm/include
+		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/pointmatcher>
+		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-pm/include>
 		$<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(pointmatcher
+target_link_libraries(${PROJECT_NAME}
 	PUBLIC
 		Boost::thread
 		Boost::filesystem
-		Boost::system program_options
+		Boost::system
+		Boost::program_options
 		Boost::date_time
 		Boost::chrono
 		Eigen3::Eigen
 		libnabo::nabo
-	PRIVATE
-		${libnabo_LIBRARIES}
 )
 
-install(TARGETS pointmatcher EXPORT ${PROJECT_NAME}-targets
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
+install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-targets
+	ARCHIVE DESTINATION lib
+	LIBRARY DESTINATION lib
+	RUNTIME DESTINATION bin
 )
 
 install(FILES package.xml DESTINATION "share/${PROJECT_NAME}")
 
+install(
+	FILES
+		pointmatcher/DeprecationWarnings.h
+		pointmatcher/PointMatcher.h
+		pointmatcher/PointMatcherPrivate.h
+		pointmatcher/Parametrizable.h
+		pointmatcher/Registrar.h
+		pointmatcher/Timer.h
+		pointmatcher/Functions.h
+		pointmatcher/IO.h
+	DESTINATION include/pointmatcher
+)
+
+# Export the library interface
+install(EXPORT ${PROJECT_NAME}-targets
+	NAMESPACE pointmatcher::
+	DESTINATION lib/cmake/${PROJECT_NAME}
+)
+
+# Create and install the version file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file("${PROJECT_NAME}-config-version.cmake"
+	VERSION ${POINTMATCHER_VERSION}
+	COMPATIBILITY SameMajorVersion
+)
+
+install(
+	FILES
+		${PROJECT_NAME}-config.cmake
+		${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+	DESTINATION
+		lib/cmake/${PROJECT_NAME}
+)
