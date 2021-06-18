@@ -121,9 +121,12 @@ install(
 
 # Export the library interface
 install(EXPORT ${PROJECT_NAME}-targets
-	NAMESPACE pointmatcher::
+	NAMESPACE ${PROJECT_NAME}::
 	DESTINATION lib/cmake/${PROJECT_NAME}
 )
+
+# Add alias target to use pointmatcher from build space
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 # Create and install the version file
 include(CMakePackageConfigHelpers)
