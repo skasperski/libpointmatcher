@@ -6,6 +6,8 @@ find_package(Boost COMPONENTS thread filesystem system program_options date_time
 find_package(Eigen3 REQUIRED)
 find_package(libnabo REQUIRED)
 
+add_subdirectory(contrib/yaml-cpp-pm)
+
 # Pointmatcher lib and install
 set(POINTMATCHER_SRC
 	pointmatcher/Logger.cpp
@@ -96,6 +98,7 @@ target_link_libraries(${PROJECT_NAME}
 		Boost::chrono
 		Eigen3::Eigen
 		libnabo::nabo
+		yaml-cpp-pm
 )
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-targets
